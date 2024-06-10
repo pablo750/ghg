@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Личный кабинет</h1>
+            <nav>
+                <ul>
+                    <li><a href="#profile">Профиль</a></li>
+                    <li><a href="#settings">Настройки</a></li>
+                    <li><a href="#logout">Выход</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <main>
+            <section id="profile">
+                <h2>Профиль</h2>
+                <div class="profile-info">
+                    <img id="profile-pic" src="default-pic.jpg" alt="Profile Picture">
+                    <div>
+                        <p><strong>Имя:</strong> <span id="user-name">Имя</span></p>
+                        <p><strong>Email:</strong> <span id="user-email">Email</span></p>
+                    </div>
+                </div>
+                <input type="file" id="profile-pic-input">
+                <button onclick="changeProfilePic()">Изменить иконку профиля</button>
+            </section>
+
+            <section id="settings">
+                <h2>Настройки</h2>
+                <form id="settings-form">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" disabled>
+                    <label for="password">Пароль:</label>
+                    <input type="password" id="password" name="password">
+                    <button type="submit">Сохранить изменения</button>
+                </form>
+            </section>
+
+            <section id="logout">
+                <h2>Выход</h2>
+                <button onclick="logout()">Выйти из аккаунта</button>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 Личный кабинет. Все права защищены.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUserEmail = localStorage.getItem('currentUser');
+            const user = JSON.parse(localStorage.getItem(currentUserEmail));
+
+            if (user) {
+                document.getElementById('user-name').textContent = user.name;
+                document.getElementById('user-email').textContent = user.email;
+                document.getElementById('profile-pic').src = user.profilePic;
+                document.getElementById('email').value = user.email;
+            } else {
+                alert('Пользователь не найден');
+                window.location.href = 'login.html';
+            }
+
+            document.getElementById('settings-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const newPassword = document.getElementById('password').value;
+
+                if (newPassword) {
+                    user.password = newPassword;
+                    localStorage.setItem(currentUserEmail, JSON.stringify(user));
+                    alert('Пароль успешно изменен');
+                } else {
+                    alert('Введите новый пароль');
+                }
+            });
+        });
+
+        function changeProfilePic() {
+            const fileInput = document.getElementById('profile-pic-input');
+            const currentUserEmail = localStorage.getItem('currentUser');
+            const user = JSON.parse(localStorage.getItem(currentUserEmail));
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    user.profilePic = e.target.result;
+                    localStorage.setItem(currentUserEmail, JSON.stringify(user));
+                    document.getElementById('profile-pic').src = e.target.result;
+                    alert('Иконка профиля успешно изменена');
+                }
+
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            alert('Вы успешно вышли из аккаунта.');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
